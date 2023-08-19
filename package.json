@@ -1,0 +1,23 @@
+{
+  "name": "planning",
+  "version": "1.0.0",
+  "description": "Small script to generate a planning based on some constraints for a team",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.4.5",
+    "jest": "^29.6.2",
+    "typescript": "^5.1.6"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "npx yarn build && npx yarn start",
+    "test": "npx yarn build && npx jest --no-silent"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "eslint": "^8.45.0",
+    "jest-without-globals": "^0.0.3"
+  }
+}
