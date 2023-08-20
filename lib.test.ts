@@ -1,6 +1,9 @@
 const Jest = require('@jest/globals');
 
-const { datesOverlap, overlap, createSlots } = require('./dist/index.js');
+import { durationInDays } from "./lib";
+import { DateSpan } from "./types/DateSpan";
+import { Order } from "./types/Order";
+const { datesOverlap, overlap, createSlots, presence } = require('./index');
 
 describe("Test datesOverlap", () => {
     const s1 = {start: new Date("2023-01-01"), end: new Date("2023-01-03")};
@@ -89,4 +92,86 @@ describe("Test createSlots", () => {
             expect(ref[i-1].end.getTime()).toBe(s.getTime());
         }
     })
+});
+
+describe("Test DurationInDays", () => {
+    const timePeriod1: DateSpan = {
+        start: new Date("2023-07-31T22:00:00.000Z"),
+        end: new Date("2023-08-04T08:00:00.000Z")
+    }
+    test('Check morning', () => {
+        expect(
+            durationInDays(timePeriod1)
+        ).toBe(
+            4
+        )
+    });
+
+    const timePeriod2 = {
+        start: new Date("2023-07-31T22:00:00.000Z"),
+        end: new Date("2023-08-04T18:00:00.000Z")
+    }
+
+    test('Check evening', () => {
+        expect(
+            durationInDays(timePeriod2)
+        ).toBe(
+            4
+        )
+    });
+
+    const timePeriod3 = {
+        start: new Date("2023-07-31T22:00:00.000Z"),
+        end: new Date("2023-08-04T22:01:00.000Z")
+    }
+
+    test('Check 0h01', () => {
+        expect(
+            durationInDays(timePeriod3)
+        ).toBe(
+            5
+        )
+    });
+});
+
+describe("Test Presence", () => {
+    const alwaysHere: Order = {
+        person: {
+            "name":"Testy",
+            "unavailable": []
+        },
+    };
+
+    const absentSomeDays: Order = {
+        person: {
+            "name": "Testy",
+            "unavailable": [
+                {
+                    "start": new Date("2023-07-30T22:00:00.000Z"),
+                    "end": new Date("2023-08-03T22:00:00.000Z")
+                }
+            ]
+        }
+    }
+
+    const timePeriod: DateSpan = {
+        start: new Date("2023-07-30T22:00:00.000Z"),
+        end: new Date("2023-08-12T22:00:00.000Z")
+    }
+
+    test('Check always here', () => {
+        expect(
+            presence(alwaysHere.person.unavailable, timePeriod)
+        ).toBe(
+            durationInDays(timePeriod)
+        )
+    });
+
+    test('Check absent 4 days', () => {
+        expect(
+            presence(absentSomeDays.person.unavailable, timePeriod)
+        ).toBe(
+            durationInDays(timePeriod) - durationInDays(absentSomeDays.person.unavailable[0])
+        )
+    });
 });

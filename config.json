@@ -46,11 +46,13 @@
     "roles": [
         {
             "name": "Track debug",
-            "duration": 14
+            "duration": 14,
+            "fullTime": true
         },
         {
             "name": "Referrer",
-            "duration": 14
+            "duration": 14,
+            "fullTime": false
         }
     ]
 }
