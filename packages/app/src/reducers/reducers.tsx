@@ -2,12 +2,11 @@ import React from 'react';
 import * as config from './config';
 import { Action, Dispatch } from '../types/base';
 
-const DEFAULT_STATE: {[key: string]: unknown} = {
+const DEFAULT_STATE = {
     config: config.state,
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const REDUCERS: {[key: string]: (state: any, dispatch: Dispatch, action: any ) => any } = {
+const REDUCERS = {
     config: config.reducer,
 }
 
@@ -30,7 +29,8 @@ export const AppStateProvider = ({ children }: { children: React.ReactNode }) =>
     const dispatch = React.useCallback((action: Action) => {
         const wState: typeof DEFAULT_STATE = JSON.parse(JSON.stringify(state));
         Object.keys(REDUCERS).forEach((key) => {
-            wState[key] = REDUCERS[key](wState[key], dispatch, action);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (wState as any)[key] = (REDUCERS as any)[key]((wState as any)[key], dispatch, action);
         });
         setState(wState);
     }, [state]);

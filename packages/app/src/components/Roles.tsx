@@ -1,11 +1,9 @@
 import React, { FormEventHandler } from 'react';
-import { ConfigState } from "../reducers/config";
 import { useAppState } from "../reducers/reducers";
 
 
 export const Roles = () => {
     const {state} = useAppState();
-    const config = state.config as ConfigState;
 
     const onSubmit: FormEventHandler = React.useCallback((e) => {
         e.preventDefault();
@@ -24,7 +22,7 @@ export const Roles = () => {
                 </thead>
                 <tbody>
                     {
-                        config.roles.map((r, index) => (
+                        state.config.roles.map((r, index) => (
                             <tr key={r.name} className="border-t">
                                 <td className="p-1">
                                     <input type='text' name={`${index}-name`} value={r.name} />
