@@ -1,9 +1,10 @@
 const Jest = require('@jest/globals');
 
-import { durationInDays } from "./lib";
 import { DateSpan } from "./types/DateSpan";
 import { Order } from "./types/Order";
-const { datesOverlap, overlap, createSlots, presence } = require('./index');
+
+import { datesOverlap, overlap, createSlots, presence, durationInDays } from './index';
+import { Role } from "./types/Role";
 
 describe("Test datesOverlap", () => {
     const s1 = {start: new Date("2023-01-01"), end: new Date("2023-01-03")};
@@ -57,14 +58,16 @@ describe("Test overlap", () => {
 });
 
 describe("Test createSlots", () => {
-    const roles = [
+    const roles: Array<Role> = [
         {
             "name": "Track debug",
-            "duration": 14
+            "duration": 14,
+            fullTime: true,
         },
         {
             "name": "Referrer",
-            "duration": 14
+            "duration": 14,
+            fullTime: false,
         }
     ];
     const start = new Date(2023, 6, 31);

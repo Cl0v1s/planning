@@ -1,23 +1,5 @@
-import { Role } from './types/Role';
-
-import {
-    start as startRaw,
-    end as endRaw,
-    team as teamRaw,
-    roles as rolesRaw
-} from './config.json';
-import { Person } from './types/Person';
-import { DateSpan } from './types/DateSpan';
-import { Order } from './types/Order';
-import { Slot } from './types/Slot';
-
-import * as readline from 'node:readline/promises';
-import { exit, stdin as input, stdout as output } from 'node:process';
-
-const rl = readline.createInterface({ input, output });
-
-
-
+import { Role, Person, DateSpan, Order, Slot } from './types/index';
+export * from './types/index';
 
 /**
  * Create Datespans for given roles between a start date and a end date
@@ -181,7 +163,7 @@ export function assign(orders: Array<Order>, slots: Array<Slot>) {
 }
 
 
-function createRound(start: Date, end: Date, team: Array<Person>, roles: Array<Role>) {
+export function round(start: Date, end: Date, team: Array<Person>, roles: Array<Role>) {
     // we init an array associate persons with number of times they were affected
     const order: Array<Order> = team.map((p) => ({
         person: p,
@@ -195,7 +177,4 @@ function createRound(start: Date, end: Date, team: Array<Person>, roles: Array<R
 
     const slots = createSlots(roles, start, end);
     assign(order, slots);
-    exit(0);
 }
-
-createRound(new Date(startRaw), new Date(endRaw), teamRaw.map((p) => new Person(p)), [...rolesRaw])
