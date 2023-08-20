@@ -8,7 +8,7 @@ function Starter({ children } : { children: React.ReactNode }) {
 
   React.useEffect(() => {
     // fetch config
-    fetchConfig(dispatch);
+    dispatch(fetchConfig());
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

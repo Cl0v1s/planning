@@ -1,18 +1,20 @@
 import React from 'react';
 import * as config from './config';
-import { Action, Dispatch } from '../types/base';
+import { Action, DispatchAction, GlobalDispatch } from '../types/base';
 
 const DEFAULT_STATE = {
     config: config.state,
 }
+
+export type State = typeof DEFAULT_STATE;
 
 const REDUCERS = {
     config: config.reducer,
 }
 
 type Context = {
-    state: typeof DEFAULT_STATE,
-    dispatch: Dispatch,
+    state: State,
+    dispatch: GlobalDispatch,
 }
 
 const DEFAULT_CONTEXT: Context = {
@@ -24,16 +26,21 @@ const AppState = React.createContext(DEFAULT_CONTEXT);
 
 
 export const AppStateProvider = ({ children }: { children: React.ReactNode }) => {
-    const [state, setState] = React.useState<typeof DEFAULT_STATE>(DEFAULT_STATE);
+    const [state, setState] = React.useState<State>(DEFAULT_STATE);
 
-    const dispatch = React.useCallback((action: Action) => {
-        const wState: typeof DEFAULT_STATE = JSON.parse(JSON.stringify(state));
+    const dispatchAction = React.useCallback((action:Action) => {
+        const wState: State = JSON.parse(JSON.stringify(state));
         Object.keys(REDUCERS).forEach((key) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (wState as any)[key] = (REDUCERS as any)[key]((wState as any)[key], dispatch, action);
+            (wState as any)[key] = (REDUCERS as any)[key]((wState as any)[key], dispatchAction, action);
         });
         setState(wState);
-    }, [state]);
+    }, []);
+
+    const dispatch = React.useCallback((fn: (state: State, dispatch: DispatchAction) => void) => {
+            const wState: State = JSON.parse(JSON.stringify(state));
+            fn(wState, dispatchAction);
+    }, []);
 
     return (
         <AppState.Provider value={{state, dispatch}}>

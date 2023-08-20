@@ -1,6 +1,6 @@
-import { CONFIG_FETCH, CONFIG_FETCH_FAIL, CONFIG_FETCH_SUCCESS } from "../actions/config";
+import { CONFIG_FETCH, CONFIG_FETCH_FAIL, CONFIG_FETCH_SUCCESS, CONFIG_UPDATE } from "../actions/config";
 import { Person, Role } from '@planning/lib';
-import { Action, Dispatch } from "../types/base";
+import { Action, DispatchAction } from "../types/base";
 
 export type ConfigState = {
     roles: Array<Role>,
@@ -14,12 +14,36 @@ export const state: ConfigState = {
     team: [],
 }
 
-export function reducer(state: ConfigState, _dispatch: Dispatch, action: ConfigAction) {
+
+function sanitizeRole(role: Role): Role {
+    let fullTime = false;
+    if(role.fullTime === true || role.fullTime as unknown === 'on') fullTime = true;
+    return {
+        ...role,
+        duration: Number(role.duration),
+        fullTime,
+    }
+} 
+
+function sanitizeTeam(person: Person) {
+    return person;
+}
+
+function sanitizeConfig(config: ConfigState): ConfigState {
+    return {
+        ...config,
+        team: config.team.map(sanitizeTeam),
+        roles: config.roles.map(sanitizeRole),
+    };
+}
+
+export function reducer(state: ConfigState, _dispatch: DispatchAction, action: ConfigAction) {
     switch(action.type) {
         case CONFIG_FETCH_FAIL:
         case CONFIG_FETCH:
             return state;
         case CONFIG_FETCH_SUCCESS:
-            return { ...state, roles: action.roles, team: action.team }
+        case CONFIG_UPDATE:
+            return sanitizeConfig({ ...state, roles: action.roles, team: action.team })
     }
 }

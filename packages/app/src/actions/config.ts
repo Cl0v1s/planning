@@ -1,10 +1,13 @@
-import { Dispatch } from "../types/base";
+import { Person, Role } from "@planning/lib";
+import { State } from "../reducers/reducers";
+import { DispatchAction } from "../types/base";
 
 export const CONFIG_FETCH = 'CONFIG_FETCH';
 export const CONFIG_FETCH_SUCCESS = 'CONFIG_FETCH_SUCCESS';
 export const CONFIG_FETCH_FAIL = 'CONFIG_FETCH_FAIL';
+export const CONFIG_UPDATE = 'CONFIG_UPDATE';
 
-export async function fetchConfig(dispatch: Dispatch) {
+export const fetchConfig = () => async (_state: State, dispatch: DispatchAction) => {
     dispatch({ type: CONFIG_FETCH });
 
     try {
@@ -15,5 +18,8 @@ export async function fetchConfig(dispatch: Dispatch) {
     } catch (e) {
         dispatch({ type: CONFIG_FETCH_FAIL });
     }
+}
 
+export const updateConfig = ({ roles, team}: { roles: Array<Role>, team: Array<Person>}) => (_state: State, dispatch: DispatchAction) => {
+    dispatch({ type: CONFIG_UPDATE, roles, team} as never)
 }

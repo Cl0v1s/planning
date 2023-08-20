@@ -1,43 +1,75 @@
 import React, { FormEventHandler } from 'react';
 import { useAppState } from "../reducers/reducers";
+import { Role } from '@planning/lib';
+import { updateConfig } from '../actions/config';
 
 
 export const Roles = () => {
-    const {state} = useAppState();
+    const {state, dispatch} = useAppState();
+    const [dirty, setDirty] = React.useState(false);
 
-    const onSubmit: FormEventHandler = React.useCallback((e) => {
+    console.log(state.config);
+
+    const onSubmit: FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
         e.preventDefault();
-    }, []);
+
+        const wRoles = JSON.parse(JSON.stringify(state.config.roles)) as Array<Role>;
+        const form = new FormData(e.currentTarget as HTMLFormElement);
+        Array.from(form.keys()).reduce((acc, key) => {
+            const [index, attr] = key.split('-');
+            const wIndex = Number(index);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (acc[wIndex] as any)[attr] = form.get(key);
+            return acc;
+        }, wRoles);
+        dispatch(updateConfig({ team: state.config.team, roles: wRoles }));
+        setDirty(false);
+    }, [dispatch, state.config.roles, state.config.team]);
 
     return (
-        <form onSubmit={onSubmit}>
-            <h3>Roles</h3>
+        <form className='inline-block' onSubmit={onSubmit} onChange={() => setDirty(true)}>
+            <div className='flex items-center gap-2'>
+                <h3>
+                    Roles
+                </h3>
+                {
+                    dirty && (
+                        <i>- edited</i>
+                    )
+                }
+            </div>
             <table className="table-auto">
                 <thead className="font-semibold">
                     <tr>
-                        <td>name</td>
-                        <td>duration (days)</td>
-                        <td>full time</td>
+                        <td className='pb-2'>name</td>
+                        <td className='pb-2'>duration (days)</td>
+                        <td className='pb-2'>full time</td>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         state.config.roles.map((r, index) => (
-                            <tr key={r.name} className="border-t">
+                            <tr key={r.name}>
                                 <td className="p-1">
-                                    <input type='text' name={`${index}-name`} value={r.name} />
+                                    <input type='text' name={`${index}-name`} defaultValue={r.name} />
                                 </td>
                                 <td className="p-1">
-                                    <input type='number' name={`${index}-duration`} value={r.duration} min={0} step={1} />
+                                    <input type='number' name={`${index}-duration`} defaultValue={r.duration} min={0} step={1} />
                                 </td>
                                 <td className="text-center p1">
-                                    <input type='checkbox' checked={r.fullTime} name={`${index}-fullTime`} />
+                                    <input type='checkbox' defaultChecked={r.fullTime}  name={`${index}-fullTime`} />
                                 </td>
                             </tr>
                         ))
                     }
                 </tbody>
             </table>
+            <div className='mt-2 text-right'>
+                <button type='submit' disabled={!dirty}>
+                    Save
+                </button>
+            </div>
+
         </form>
     )
 
