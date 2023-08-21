@@ -23,10 +23,13 @@ function sanitizeRole(role: Role): Role {
         duration: Number(role.duration),
         fullTime,
     }
-} 
+}
 
-function sanitizeTeam(person: Person) {
-    return person;
+function sanitizeTeam(person: Person): Person {
+    return {
+        ...person,
+        unavailable: person.unavailable.map((s) => ({ start: new Date(s.start), end: new Date(s.end)}))
+    }
 }
 
 function sanitizeConfig(config: ConfigState): ConfigState {

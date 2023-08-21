@@ -2,6 +2,7 @@ import React from 'react';
 import { Roles } from "./components/Roles";
 import { AppStateProvider, useAppState } from "./reducers/reducers";
 import { fetchConfig } from './actions/config';
+import { Team } from './components/Team';
 
 function Starter({ children } : { children: React.ReactNode }) {
   const { dispatch } = useAppState();
@@ -20,6 +21,7 @@ function App() {
     <AppStateProvider>
       <Starter>
         <Roles />
+        <Team />
       </Starter>
     </AppStateProvider>
   )

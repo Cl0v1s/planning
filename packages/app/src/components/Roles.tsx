@@ -8,8 +8,6 @@ export const Roles = () => {
     const {state, dispatch} = useAppState();
     const [dirty, setDirty] = React.useState(false);
 
-    console.log(state.config);
-
     const onSubmit: FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
         e.preventDefault();
 
