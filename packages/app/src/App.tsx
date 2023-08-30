@@ -20,8 +20,10 @@ function App() {
   return (
     <AppStateProvider>
       <Starter>
-        <Roles />
-        <Team />
+        <div className='flex justify-around gap-3'>
+          <Roles />
+          <Team />
+        </div>
       </Starter>
     </AppStateProvider>
   )

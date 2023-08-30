@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { MouseEventHandler } from 'react';
 import ReactDOM from 'react-dom';
 import { useAppState } from '../reducers/reducers';
 import { DatePicker } from './DatePicker';
@@ -53,6 +53,21 @@ export const Team = () => {
         setTeam(wTeam);
     }, [team]);
 
+    const onAddTeamMember: MouseEventHandler<HTMLButtonElement> = React.useCallback((e) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const formData = new FormData((e.target as any)?.form);
+        const name = formData.get('name');
+        if(!name || team.find((t) => t.name === name.toString())) return;
+        setTeam([
+            ...team,
+            { 
+                name: name.toString(),
+                unavailable: [],
+            }
+        ])
+        setDirty(true);
+    }, [team]);
+
     const onClosePicker = React.useCallback(() => {
         setPickerAnchor(undefined);
         setDates(undefined);
@@ -63,6 +78,7 @@ export const Team = () => {
         setDates(range);
         if(!pickerCallback.current || !range || !range.from || !range.to) return;
         pickerCallback.current(range);
+        setDirty(true);
     }, []);
 
     const onPicker = React.useCallback((e: MouseEvent, person: Person, span: DateSpan | null) => {
@@ -78,7 +94,7 @@ export const Team = () => {
 
     return (
         <>
-            <form onSubmit={onSubmit} onChange={() => setDirty(true)}>
+            <form onSubmit={onSubmit}>
                 <div className='flex items-center gap-2'>
                     <h3>Team</h3>
                     {
@@ -115,14 +131,32 @@ export const Team = () => {
                                     </td>
                                     <td>
                                         <button type="button" onClick={(e: unknown) => onPicker(e as MouseEvent, person, null)}>
-                                            Add
+                                            Add dates
                                         </button>
                                     </td>
                                 </tr>
                             ))
                         }
+                        <tr>
+                            <td>
+                                <input type="text" name="name" />
+                            </td>
+                            <td>
+
+                            </td>
+                            <td>
+                                <button type="button" onClick={onAddTeamMember}>
+                                    Add team member
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
+                <div className='text-right'>
+                    <button type="submit">
+                        Save
+                    </button>
+                </div>
             </form>
             {
                 pickerAnchor && ReactDOM.createPortal(<DatePicker onClose={onClosePicker} key={`${dates?.from?.toLocaleDateString()}-${dates?.to?.toLocaleDateString()}`} showOutsideDays fixedWeeks mode="range" selected={dates}  onSelect={onSelect} defaultMonth={dates?.from} numberOfMonths={2} anchor={pickerAnchor} />, document.body)
