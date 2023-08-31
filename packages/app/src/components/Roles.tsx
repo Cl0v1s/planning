@@ -3,7 +3,6 @@ import { useAppState } from "../reducers/reducers";
 import { Role } from '@planning/lib';
 import { updateConfig } from '../actions/config';
 
-
 export const Roles = () => {
     const {state, dispatch} = useAppState();
     const [dirty, setDirty] = React.useState(false);

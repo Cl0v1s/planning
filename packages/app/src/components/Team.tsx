@@ -4,11 +4,12 @@ import { useAppState } from '../reducers/reducers';
 import { DatePicker } from './DatePicker';
 import { DateSpan, Person } from '@planning/lib';
 import { DateRange } from 'react-day-picker';
+import { updateConfig } from '../actions/config';
 
 
 export const Team = () => {
     const [dirty, setDirty] = React.useState(false);
-    const { state } = useAppState();
+    const { state, dispatch } = useAppState();
     const [team, setTeam] = React.useState(state.config.team)
     const [pickerAnchor, setPickerAnchor] = React.useState<HTMLElement>();
     const [dates, setDates] = React.useState<DateRange | undefined>();
@@ -20,9 +21,10 @@ export const Team = () => {
 
 
     const onSubmit: React.FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
-
+        e.preventDefault();
+        dispatch(updateConfig({roles: state.config.roles, team}))
         setDirty(false);
-    }, []);
+    }, [dispatch, state.config.roles, team]);
 
     const onEditDateSpan = React.useCallback((person: Person, before: DateSpan, after: DateRange) => {
         const index = team.findIndex((t) => t.name === person.name)
@@ -153,7 +155,7 @@ export const Team = () => {
                     </tbody>
                 </table>
                 <div className='text-right'>
-                    <button type="submit">
+                    <button type="submit" disabled={!dirty}>
                         Save
                     </button>
                 </div>
