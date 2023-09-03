@@ -2,7 +2,7 @@ import React from 'react';
 
 import { useAppState } from '../reducers/reducers';
 
-import { Person, Role, planning } from '@planning/lib';
+import { Order, Person, Role, planning } from '@planning/lib';
 
 interface Slot {
     start: Date, end: Date, person: Person, role: Role
@@ -11,6 +11,7 @@ interface Slot {
 export const Planning = () => {
     const { state } = useAppState();
     const [slots, setSlots] = React.useState<Array<Array<Slot>>>([]);
+    const [orders, setOrders] = React.useState<Array<Order>>();
 
 
     const onGenerate = React.useCallback(() => {
@@ -18,17 +19,20 @@ export const Planning = () => {
         const end = new Date();
         end.setMonth(start.getMonth() + 6);
 
-        const orders = planning(start, end, state.config.team, state.config.roles)
-            .map((o) => {
-                const wO = {...o};
-                const { person } = wO;
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                delete (wO as any).person;
-                const slots = Object.values(wO);
-                return slots.flat().map((s) => ({ ...s, person }));
-            })
-            .flat() as Array<Slot>
-        const sortedOrders = orders.sort((a, b) => a.start.getTime() - b.start.getTime());
+        const orders = planning(start, end, state.config.team, state.config.roles);
+        setOrders(orders);
+
+        const sortedOrders = (orders.map((o) => {
+            const wO = {...o};
+            const { person } = wO;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            delete (wO as any).person;
+            const slots = Object.values(wO);
+            return slots.flat().map((s) => ({ ...s, person }));
+        })
+        .flat() as Array<Slot>)
+        .sort((a, b) => a.start.getTime() - b.start.getTime());
+
 
         const clusters: Array<Array<Slot>> = [];
         do {
@@ -57,6 +61,25 @@ export const Planning = () => {
                     }
                 </tr>
             </table>
+            <div>
+                <h2>Stats</h2>
+                <div className='flex gap-4 items-center'>
+                    {
+                        orders?.map((o) => (
+                            <div>
+                                <span>{ o.person.name }</span>
+                                <ul className='pl-3'>
+                                {
+                                    Object.keys(o).filter((k) => k !== "person").map((k) => (
+                                        <li>{ k }: { (o[k] as Array<never>).length}</li>
+                                    ))
+                                }
+                                </ul>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>
         </div>
     )
 };
