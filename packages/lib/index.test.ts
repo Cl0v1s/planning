@@ -3,7 +3,7 @@ const Jest = require('@jest/globals');
 import { DateSpan } from "./types/DateSpan";
 import { Order } from "./types/Order";
 
-import { datesOverlap, overlap, createSlots, presence, durationInDays } from './index';
+import { datesOverlap, overlap, createSlots, presence, durationInDays, assignFullTime, createOrders, affectations, Person } from './index';
 import { Role } from "./types/Role";
 
 describe("Test datesOverlap", () => {
@@ -176,5 +176,109 @@ describe("Test Presence", () => {
         ).toBe(
             durationInDays(timePeriod) - durationInDays(absentSomeDays.person.unavailable[0])
         )
+    });
+});
+
+describe('test assign', () => {
+    const roles = [
+        {
+            "name": "Track debug",
+            "duration": 14,
+            "fullTime": true
+        },
+        {
+            "name": "Referrer",
+            "duration": 14,
+            "fullTime": false
+        }
+    ];
+    const team = [
+        {
+            "name":"Stella",
+            "unavailable": [
+                
+            ]
+        },
+        {
+            "name":"Pierre",
+            "unavailable": [
+                
+            ]
+        },
+        {
+            "name":"Matthieu",
+            "unavailable": [
+                
+            ]
+        },
+        {
+            "name":"Clovis",
+            "unavailable": [
+                
+            ]
+        }
+    ];
+
+    test('simple assign full time', () => {
+        const wRoles = [roles[0]];
+        const slots = createSlots(wRoles, new Date('2023-01-01'), new Date('2023-01-31'));
+        const orders = createOrders(team, wRoles);
+       const remainingSlots = slots.filter((s) => !assignFullTime(orders, s));
+       const oRoles = orders.map((o) => (o[wRoles[0].name] as Array<DateSpan>));
+       // all slots affected
+       expect(remainingSlots.length).toBe(0);
+       expect(oRoles.flat().length).toBe(slots.length);
+       // nobody been affected twice
+       expect(
+        oRoles.filter((o) => o.length > 1).length
+       ).toBe(0)
+    });
+
+    test('simple assign full time with two roles', () => {
+        const slots = createSlots(roles, new Date('2023-01-01'), new Date('2023-01-31'));
+        const orders = createOrders(team, roles);
+        const remainingSlots = slots.filter((s) => !assignFullTime(orders, s));
+        const affcts = orders.map((o) => affectations(o));
+        // all slots affected
+        expect(remainingSlots.length).toBe(0);
+        expect(affcts.flat().length).toBe(slots.length);
+        // nobody been affected too much
+        expect(
+        affcts.filter((o) => o.length > 2).length
+        ).toBe(0)
+    });
+
+    test('assign with unavailability', () => {
+        const wTeam = [
+            ...team.filter((p) => p.name !== "Stella" && p.name !== "Pierre"),
+            {
+                "name":"Stella",
+                "unavailable": [
+                    {
+                        start: new Date('2023-01-07'),
+                        end: new Date('2023-01-14'),
+                    }
+                ]
+            } as Person,
+            {
+                "name":"Pierre",
+                "unavailable": [
+                    {
+                        start: new Date('2023-01-01'),
+                        end: new Date('2023-01-17'),
+                    }
+                ]
+            } as Person,
+        ];
+        const slots = createSlots(roles, new Date('2023-01-01'), new Date('2023-01-31'));
+        const orders = createOrders(wTeam, roles);
+        const remainingSlots = slots.filter((s) => !assignFullTime(orders, s));
+
+        const pierre = orders.find((o) => o.person.name === "Pierre");
+        const stella = orders.find((o) => o.person.name === "Stella");
+
+        expect(remainingSlots.length).toBe(0);
+        expect(overlap([...affectations(pierre), ...pierre.person.unavailable])).toBeFalsy();
+        expect(overlap([...affectations(stella), ...stella.person.unavailable])).toBeFalsy();
     });
 });

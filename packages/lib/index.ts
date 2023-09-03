@@ -57,7 +57,7 @@ export function overlap(spans: Array<DateSpan>) {
  * @param order 
  * @returns 
  */
-function affectations(order: Order) {
+export function affectations(order: Order) {
     return Object.values(order).filter((v) => Array.isArray(v)).flat() as Array<DateSpan>;
 }
 
@@ -97,6 +97,8 @@ export function presence(unavailable: Array<DateSpan>, d1: DateSpan) {
  */
 export function assignFullTime(orders: Array<Order>, slot: Slot) {
     const ordered = [...orders.sort((a, b) => {
+        const d = (a[slot.role.name] as Array<DateSpan>).length - (b[slot.role.name] as Array<DateSpan>).length;
+        if(d !== 0) return d;
         return affectations(a).length - affectations(b).length;
     })];
 
@@ -160,20 +162,25 @@ export function assign(orders: Array<Order>, slots: Array<Slot>) {
     if(remainingSlots.length > 0) {
         console.error(remainingSlots);
     }
+
+    return remainingSlots;
 }
 
-export function planning(start: Date, end: Date, team: Array<Person>, roles: Array<Role>) {
+export function createOrders(team: Array<Person>, roles: Array<Role>) {
     // we init an array associate persons with number of times they were affected
     const order: Array<Order> = team.map((p) => ({
         person: p,
         ...roles.reduce((acc, role) => { 
             return {
-                ...acc,
                 [role.name]: [],
             }
         }, {})
     }));
+    return order;
+}
 
+export function planning(start: Date, end: Date, team: Array<Person>, roles: Array<Role>) {
+    const order = createOrders(team, roles);
     const slots = createSlots(roles, start, end);
     assign(order, slots);
     return order;
