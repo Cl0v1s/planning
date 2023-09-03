@@ -162,8 +162,7 @@ export function assign(orders: Array<Order>, slots: Array<Slot>) {
     }
 }
 
-
-export function round(start: Date, end: Date, team: Array<Person>, roles: Array<Role>) {
+export function planning(start: Date, end: Date, team: Array<Person>, roles: Array<Role>) {
     // we init an array associate persons with number of times they were affected
     const order: Array<Order> = team.map((p) => ({
         person: p,
@@ -177,4 +176,5 @@ export function round(start: Date, end: Date, team: Array<Person>, roles: Array<
 
     const slots = createSlots(roles, start, end);
     assign(order, slots);
+    return order;
 }

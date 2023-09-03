@@ -16,7 +16,7 @@ export const Planning = () => {
     const onGenerate = React.useCallback(() => {
         const start = new Date();
         const end = new Date();
-        end.setMonth(start.getMonth() + 2);
+        end.setMonth(start.getMonth() + 6);
 
         const orders = planning(start, end, state.config.team, state.config.roles)
             .map((o) => {
