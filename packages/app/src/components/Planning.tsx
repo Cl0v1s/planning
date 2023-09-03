@@ -1,8 +1,12 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 import { useAppState } from '../reducers/reducers';
 
 import { Order, Person, Role, planning } from '@planning/lib';
+
+import { DatePicker } from './DatePicker';
+import { DateRange } from 'react-day-picker';
 
 interface Slot {
     start: Date, end: Date, person: Person, role: Role
@@ -12,14 +16,13 @@ export const Planning = () => {
     const { state } = useAppState();
     const [slots, setSlots] = React.useState<Array<Array<Slot>>>([]);
     const [orders, setOrders] = React.useState<Array<Order>>();
+    const [range, setRange] = React.useState<DateRange | undefined>(undefined);
+    const [pickerAnchor, setPickerAnchor] = React.useState<HTMLElement | null>(null);
 
 
     const onGenerate = React.useCallback(() => {
-        const start = new Date();
-        const end = new Date();
-        end.setMonth(start.getMonth() + 6);
-
-        const orders = planning(start, end, state.config.team, state.config.roles);
+        if(!range || !range.from || !range.to) return;
+        const orders = planning(range?.from, range.to, state.config.team, state.config.roles);
         setOrders(orders);
 
         const sortedOrders = (orders.map((o) => {
@@ -51,8 +54,26 @@ export const Planning = () => {
         setSlots(clusters);
     }, [state.config.roles, state.config.team]);
 
+    const onSetRange: React.MouseEventHandler = React.useCallback((e) => {
+        setPickerAnchor(e.target as HTMLButtonElement);
+    }, []);
+
     return (
         <div>
+            <div className='flex my-2 gap-2 items-end'>
+                <div>
+                    <label className='block' htmlFor='from'>From:</label>
+                    <input type="text" id="from" name="from" value={range?.from?.toLocaleDateString()} />
+                </div>
+                <div>
+                    -
+                </div>
+                <div>
+                    <label className='block' htmlFor='to'>To:</label>
+                    <input type="text" id="to" name="to" value={range?.to?.toLocaleDateString()} />
+                </div>
+                <button type="button" onClick={onSetRange}>Set range</button>
+            </div>
             <button type="button" onClick={onGenerate}>Generate Planning</button>
             <table>
                 <tr>
@@ -80,6 +101,9 @@ export const Planning = () => {
                     }
                 </div>
             </div>
+            {
+                pickerAnchor && ReactDOM.createPortal(<DatePicker onClose={() => setPickerAnchor(null)} showOutsideDays fixedWeeks mode="range" selected={range}  onSelect={setRange} defaultMonth={new Date()} numberOfMonths={2} anchor={pickerAnchor} />, document.body)
+            }
         </div>
     )
 };

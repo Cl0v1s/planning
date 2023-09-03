@@ -97,10 +97,17 @@ export function presence(unavailable: Array<DateSpan>, d1: DateSpan) {
  */
 export function assignFullTime(orders: Array<Order>, slot: Slot) {
     const ordered = [...orders.sort((a, b) => {
-        console.log(a);
-        console.log(b);
-        const d = (a[slot.role.name] as Array<DateSpan>).length - (b[slot.role.name] as Array<DateSpan>).length;
+        // we dont want the same role to be affected twice to the same person in a row
+        const aSlots = (a[slot.role.name] as Array<DateSpan>);
+        const bSlots = (a[slot.role.name] as Array<DateSpan>);
+        const dayBefore = new Date(slot.start);
+        dayBefore.setDate(dayBefore.getDate() - 1);
+        if(aSlots.find((s) => s.end.getTime() === dayBefore.getTime())) { return 1; }
+        if(bSlots.find((s) => s.end.getTime() === dayBefore.getTime())) { return -1; }
+        // we sort by the affectations number
+        const d = aSlots.length - bSlots.length;
         if(d !== 0) return d;
+        // we sort by overall affectations number
         return affectations(a).length - affectations(b).length;
     })];
 
@@ -113,7 +120,6 @@ export function assignFullTime(orders: Array<Order>, slot: Slot) {
     if(first) {
         (first[slot.role.name] as Array<DateSpan>).push(slot);
     }
-
     return first;
 }
 

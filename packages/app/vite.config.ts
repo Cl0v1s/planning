@@ -10,4 +10,12 @@ export default defineConfig({
   resolve: {
     preserveSymlinks: true,
   },
+  optimizeDeps: {
+    include: ['./../lib'],
+  },
+  build: {
+    commonjsOptions: {
+      include: ['./../lib', /node_modules/],
+    },
+  },
 })
