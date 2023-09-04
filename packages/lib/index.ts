@@ -185,7 +185,6 @@ export function createOrders(team: Array<Person>, roles: Array<Role>) {
             }
         }, {})
     }));
-    console.log(order);
     return order;
 }
 
