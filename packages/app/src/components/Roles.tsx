@@ -1,4 +1,5 @@
 import React, { FormEventHandler } from 'react';
+import { Button} from '@synapse-medicine/boto/platform';
 import { useAppState } from "../reducers/reducers";
 import { Role } from '@planning/lib';
 import { updateConfig } from '../actions/config';
@@ -25,7 +26,7 @@ export const Roles = () => {
 
     return (
         <form className='inline-block' onSubmit={onSubmit} onChange={() => setDirty(true)}>
-            <div className='flex items-center gap-2'>
+            <div className='d-flex align-items-center gap-2'>
                 <h3>
                     Roles
                 </h3>
@@ -62,9 +63,9 @@ export const Roles = () => {
                 </tbody>
             </table>
             <div className='mt-2 text-right'>
-                <button type='submit' disabled={!dirty}>
+                <Button type="submit" size={50} disabled={!dirty}>
                     Save
-                </button>
+                </Button>
             </div>
 
         </form>

@@ -5,6 +5,7 @@ import { DatePicker } from './DatePicker';
 import { DateSpan, Person } from '@planning/lib';
 import { DateRange } from 'react-day-picker';
 import { updateConfig } from '../actions/config';
+import { Button } from '@synapse-medicine/boto/platform';
 
 
 export const Team = () => {
@@ -97,7 +98,7 @@ export const Team = () => {
     return (
         <>
             <form onSubmit={onSubmit}>
-                <div className='flex items-center gap-2'>
+                <div className='d-flex align-items-center gap-2'>
                     <h3>Team</h3>
                     {
                         dirty && (
@@ -131,33 +132,33 @@ export const Team = () => {
                                             person.unavailable.map((span) => <button key={`${span?.start?.toLocaleDateString()}-${span?.end?.toLocaleDateString()}`} type="button" onClick={(e: unknown) => onPicker(e as MouseEvent, person, span)}>{ span.start.toLocaleDateString() } - { span.end.toLocaleDateString() }</button>)
                                         }
                                     </td>
-                                    <td>
-                                        <button type="button" onClick={(e: unknown) => onPicker(e as MouseEvent, person, null)}>
+                                    <td className='text-right p-1'>
+                                        <Button variant="tertiary" size={50} onClick={(e: unknown) => onPicker(e as MouseEvent, person, null)}>
                                             Add dates
-                                        </button>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))
                         }
                         <tr>
-                            <td>
+                            <td className='p-1'>
                                 <input type="text" name="name" />
                             </td>
                             <td>
 
                             </td>
-                            <td>
-                                <button type="button" onClick={onAddTeamMember}>
+                            <td className='p-1'>
+                                <Button variant="secondary-basic" size={50}  onClick={onAddTeamMember}>
                                     Add team member
-                                </button>
+                                </Button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <div className='text-right'>
-                    <button type="submit" disabled={!dirty}>
+                <div className='text-right mt-2'>
+                    <Button type='submit' size={50} disabled={!dirty}>
                         Save
-                    </button>
+                    </Button>
                 </div>
             </form>
             {

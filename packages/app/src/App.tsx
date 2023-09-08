@@ -4,6 +4,7 @@ import { AppStateProvider, useAppState } from "./reducers/reducers";
 import { fetchConfig } from './actions/config';
 import { Team } from './components/Team';
 import { Planning } from './components/Planning';
+import 'react-router-dom';
 
 
 function Starter({ children } : { children: React.ReactNode }) {
@@ -20,15 +21,17 @@ function Starter({ children } : { children: React.ReactNode }) {
 
 function App() {
   return (
-    <AppStateProvider>
-      <Starter>
-        <div className='flex justify-around gap-3'>
-          <Roles />
-          <Team />
-        </div>
-        <Planning />
-      </Starter>
-    </AppStateProvider>
+    <div className='bg-brand-tertiary-light p-4' style={{minHeight: "100vh"}}>
+      <AppStateProvider>
+        <Starter>
+          <div className='d-inline-flex p-3 gap-4 bg-white dp-25 rounded-100'>
+            <Roles />
+            <Team />
+          </div>
+          <Planning />
+        </Starter>
+      </AppStateProvider>
+    </div>
   )
 }
 
