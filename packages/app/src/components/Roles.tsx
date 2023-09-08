@@ -1,5 +1,5 @@
 import React, { FormEventHandler } from 'react';
-import { Button} from '@synapse-medicine/boto/platform';
+import { Button, Article, Title } from '@synapse-medicine/boto/platform';
 import { useAppState } from "../reducers/reducers";
 import { Role } from '@planning/lib';
 import { updateConfig } from '../actions/config';
@@ -25,23 +25,23 @@ export const Roles = () => {
     }, [dispatch, state.config.roles, state.config.team]);
 
     return (
-        <form className='inline-block' onSubmit={onSubmit} onChange={() => setDirty(true)}>
+        <form className='d-block w-100' onSubmit={onSubmit} onChange={() => setDirty(true)}>
             <div className='d-flex align-items-center gap-2'>
-                <h3>
+                <Title variant='h3'>
                     Roles
-                </h3>
+                </Title>
                 {
                     dirty && (
                         <i>- edited</i>
                     )
                 }
             </div>
-            <table className="table-auto">
+            <table className="table-auto w-100 border rounded-50 p-2 my-3">
                 <thead className="font-semibold">
                     <tr>
-                        <td className='pb-2'>name</td>
-                        <td className='pb-2'>duration (days)</td>
-                        <td className='pb-2'>full time</td>
+                        <td className='pb-2 border-bottom'><Article variant="semibold">Name</Article></td>
+                        <td className='pb-2 border-bottom'><Article variant="semibold">duration (days)</Article></td>
+                        <td className='pb-2 border-bottom'><Article variant="semibold">full time</Article></td>
                     </tr>
                 </thead>
                 <tbody>

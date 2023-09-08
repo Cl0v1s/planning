@@ -5,8 +5,8 @@ import { DatePicker } from './DatePicker';
 import { DateSpan, Person } from '@planning/lib';
 import { DateRange } from 'react-day-picker';
 import { updateConfig } from '../actions/config';
-import { Button } from '@synapse-medicine/boto/platform';
-
+import { Button, Article, Title, Icon } from '@synapse-medicine/boto/platform';
+import { icnPlus } from '@synapse-medicine/boto/platform/icons';
 
 export const Team = () => {
     const [dirty, setDirty] = React.useState(false);
@@ -97,9 +97,11 @@ export const Team = () => {
 
     return (
         <>
-            <form onSubmit={onSubmit}>
+            <form className='d-block w-100' onSubmit={onSubmit}>
                 <div className='d-flex align-items-center gap-2'>
-                    <h3>Team</h3>
+                    <Title variant="h3">
+                        Team
+                    </Title>
                     {
                         dirty && (
                             <div>
@@ -108,16 +110,20 @@ export const Team = () => {
                         )
                     }
                 </div>
-                <table className='table-auto'>
+                <table className='table-auto w-100 border rounded-50 p-2 my-3'>
                     <thead>
                         <tr>
-                            <td className='pb-2'>
-                                name
+                            <td className='pb-2 border-bottom'>
+                                <Article variant="semibold">
+                                 name
+                                </Article>
                             </td>
-                            <td className='pb-2'>
-                                unavailable
+                            <td className='pb-2 border-bottom'>
+                                <Article variant="semibold">
+                                    unavailable
+                                </Article>
                             </td>
-                            <td className='pb-2'>
+                            <td className='pb-2 border-bottom'>
 
                             </td>
                         </tr>
@@ -147,8 +153,9 @@ export const Team = () => {
                             <td>
 
                             </td>
-                            <td className='p-1'>
+                            <td className='p-1 text-right'>
                                 <Button variant="secondary-basic" size={50}  onClick={onAddTeamMember}>
+                                    <Icon icon={icnPlus} color />
                                     Add team member
                                 </Button>
                             </td>

@@ -21,14 +21,16 @@ function Starter({ children } : { children: React.ReactNode }) {
 
 function App() {
   return (
-    <div className='bg-brand-tertiary-light p-4' style={{minHeight: "100vh"}}>
+    <div className='bg-brand-tertiary-light d-flex flex-column gap-4 p-4' style={{minHeight: "100vh"}}>
       <AppStateProvider>
         <Starter>
-          <div className='d-inline-flex p-3 gap-4 bg-white dp-25 rounded-100'>
+          <div className='d-inline-flex p-3 justify-content-stretch gap-4 bg-white dp-25 rounded-100'>
             <Roles />
             <Team />
           </div>
-          <Planning />
+          <div className='p-3 bg-white dp-25 rounded-100'>
+            <Planning />
+          </div>
         </Starter>
       </AppStateProvider>
     </div>

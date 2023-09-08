@@ -8,6 +8,10 @@ import { Order, Person, Role, planning } from '@planning/lib';
 import { DatePicker } from './DatePicker';
 import { DateRange } from 'react-day-picker';
 
+import { Article, Button, Icon } from '@synapse-medicine/boto/platform';
+import { icnArrowLineRight } from '@synapse-medicine/boto/goodmed/icons';
+
+
 interface Slot {
     start: Date, end: Date, person: Person, role: Role
 }
@@ -52,7 +56,7 @@ export const Planning = () => {
             clusters.push(cluster);
         } while (sortedOrders.length > 0);
         setSlots(clusters);
-    }, [state.config.roles, state.config.team]);
+    }, [range, state.config.roles, state.config.team]);
 
     const onSetRange: React.MouseEventHandler = React.useCallback((e) => {
         setPickerAnchor(e.target as HTMLButtonElement);
@@ -60,21 +64,31 @@ export const Planning = () => {
 
     return (
         <div>
-            <div className='flex my-2 gap-2 items-end'>
-                <div>
-                    <label className='block' htmlFor='from'>From:</label>
-                    <input type="text" id="from" name="from" value={range?.from?.toLocaleDateString()} />
+            <div className='d-flex align-items-center justify-content-between'>
+                <div className='d-flex my-2 gap-2 align-items-end'>
+                    <div>
+                        <label className='d-block mb-1' htmlFor='from'>
+                            <Article variant="semibold">
+                                From:
+                            </Article>
+                        </label>
+                        <input type="text" id="from" name="from" value={range?.from?.toLocaleDateString()} />
+                    </div>
+                    <div>
+                        -
+                    </div>
+                    <div>
+                        <label className='d-block mb-1' htmlFor='to'>
+                            <Article variant="semibold">
+                                To:
+                            </Article>
+                        </label>
+                        <input type="text" id="to" name="to" value={range?.to?.toLocaleDateString()} />
+                    </div>
+                    <Button variant="secondary-basic" onClick={onSetRange}>Set range</Button>
                 </div>
-                <div>
-                    -
-                </div>
-                <div>
-                    <label className='block' htmlFor='to'>To:</label>
-                    <input type="text" id="to" name="to" value={range?.to?.toLocaleDateString()} />
-                </div>
-                <button type="button" onClick={onSetRange}>Set range</button>
+                <Button onClick={onGenerate}><Icon icon={icnArrowLineRight} color /> Generate Planning</Button>
             </div>
-            <button type="button" onClick={onGenerate}>Generate Planning</button>
             <table>
                 <tr>
                     {
@@ -82,25 +96,29 @@ export const Planning = () => {
                     }
                 </tr>
             </table>
-            <div>
-                <h2>Stats</h2>
-                <div className='flex gap-4 items-center'>
-                    {
-                        orders?.map((o) => (
-                            <div>
-                                <span>{ o.person.name }</span>
-                                <ul className='pl-3'>
-                                {
-                                    Object.keys(o).filter((k) => k !== "person").map((k) => (
-                                        <li>{ k }: { (o[k] as Array<never>).length}</li>
-                                    ))
-                                }
-                                </ul>
-                            </div>
-                        ))
-                    }
+            {
+                orders && orders.length > 0 && (
+                    <div>
+                    <h2>Stats</h2>
+                    <div className='flex gap-4 items-center'>
+                        {
+                            orders?.map((o) => (
+                                <div>
+                                    <span>{ o.person.name }</span>
+                                    <ul className='pl-3'>
+                                    {
+                                        Object.keys(o).filter((k) => k !== "person").map((k) => (
+                                            <li>{ k }: { (o[k] as Array<never>).length}</li>
+                                        ))
+                                    }
+                                    </ul>
+                                </div>
+                            ))
+                        }
+                    </div>
                 </div>
-            </div>
+                )
+            }
             {
                 pickerAnchor && ReactDOM.createPortal(<DatePicker onClose={() => setPickerAnchor(null)} showOutsideDays fixedWeeks mode="range" selected={range}  onSelect={setRange} defaultMonth={new Date()} numberOfMonths={2} anchor={pickerAnchor} />, document.body)
             }
