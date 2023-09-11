@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react';
+import React, { FormEventHandler } from 'react';
 import ReactDOM from 'react-dom';
 import { useAppState } from '../reducers/reducers';
 import { DatePicker } from './DatePicker';
@@ -19,6 +19,13 @@ export const Team = () => {
     React.useEffect(() => {
         setTeam(state.config.team);
     }, [state.config.team])
+
+    const onDelete = React.useCallback((person: Person) => {
+        setTeam(
+            team.filter((t) => t.name !== person.name)
+        )
+        setDirty(true);
+    }, [team]);
 
 
     const onSubmit: React.FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
@@ -56,9 +63,9 @@ export const Team = () => {
         setTeam(wTeam);
     }, [team]);
 
-    const onAddTeamMember: MouseEventHandler<HTMLButtonElement> = React.useCallback((e) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formData = new FormData((e.target as any)?.form);
+    const onAddTeamMember: FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         const name = formData.get('name');
         if(!name || team.find((t) => t.name === name.toString())) return;
         setTeam([
@@ -69,6 +76,7 @@ export const Team = () => {
             }
         ])
         setDirty(true);
+        e.currentTarget.reset();
     }, [team]);
 
     const onClosePicker = React.useCallback(() => {
@@ -97,6 +105,7 @@ export const Team = () => {
 
     return (
         <>
+            <form id="team-new" onSubmit={onAddTeamMember} />
             <form className='d-block w-100' onSubmit={onSubmit}>
                 <div className='d-flex align-items-center gap-2'>
                     <Title variant="h3">
@@ -138,9 +147,12 @@ export const Team = () => {
                                             person.unavailable.map((span) => <button key={`${span?.start?.toLocaleDateString()}-${span?.end?.toLocaleDateString()}`} type="button" onClick={(e: unknown) => onPicker(e as MouseEvent, person, span)}>{ span.start.toLocaleDateString() } - { span.end.toLocaleDateString() }</button>)
                                         }
                                     </td>
-                                    <td className='text-right p-1'>
+                                    <td className='p-1 d-flex gap-3 justify-content-end'>
                                         <Button variant="tertiary" size={50} onClick={(e: unknown) => onPicker(e as MouseEvent, person, null)}>
                                             Add dates
+                                        </Button>
+                                        <Button variant="secondary-destructive" size={50} onClick={() => onDelete(person)}>
+                                            Remove
                                         </Button>
                                     </td>
                                 </tr>
@@ -148,13 +160,13 @@ export const Team = () => {
                         }
                         <tr>
                             <td className='p-1'>
-                                <input type="text" name="name" />
+                                <input type="text" form="team-new" name="name" />
                             </td>
                             <td>
 
                             </td>
                             <td className='p-1 text-right'>
-                                <Button variant="secondary-basic" size={50}  onClick={onAddTeamMember}>
+                                <Button variant="secondary-basic" size={50} type="submit" form="team-new">
                                     <Icon icon={icnPlus} color />
                                     Add team member
                                 </Button>

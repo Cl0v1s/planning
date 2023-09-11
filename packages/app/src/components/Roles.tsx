@@ -1,17 +1,50 @@
 import React, { FormEventHandler } from 'react';
-import { Button, Article, Title } from '@synapse-medicine/boto/platform';
+import { Button, Article, Title, Icon } from '@synapse-medicine/boto/platform';
 import { useAppState } from "../reducers/reducers";
 import { Role } from '@planning/lib';
 import { updateConfig } from '../actions/config';
+import { icnAdd } from '@synapse-medicine/boto/platform/icons';
 
 export const Roles = () => {
     const {state, dispatch} = useAppState();
     const [dirty, setDirty] = React.useState(false);
+    const [roles, setRoles] = React.useState(state.config.roles);
+
+    React.useEffect(() => {
+        setRoles(state.config.roles);
+    }, [state.config.roles]);
+
+    const onDelete = React.useCallback((role: Role) => {
+        setRoles(
+            roles.filter((r) => r.name !== role.name)
+        );
+        setDirty(true);
+    }, [roles]);
+
+    const onSubmitAdd: React.FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
+        e.preventDefault();
+        const form = new FormData(e.currentTarget);
+        
+        const name = form.get('name')?.toString() || '';
+        const duration = Number(form.get("duration")?.valueOf());
+        const fullTime = !!form.get('fullTime')
+
+        setRoles([
+            ...roles,
+            {
+                duration,
+                fullTime,
+                name
+            }
+        ]);
+
+        e.currentTarget.reset();
+    }, [roles]);
 
     const onSubmit: FormEventHandler<HTMLFormElement> = React.useCallback((e) => {
         e.preventDefault();
 
-        const wRoles = JSON.parse(JSON.stringify(state.config.roles)) as Array<Role>;
+        const wRoles = JSON.parse(JSON.stringify(roles)) as Array<Role>;
         const form = new FormData(e.currentTarget as HTMLFormElement);
         Array.from(form.keys()).reduce((acc, key) => {
             const [index, attr] = key.split('-');
@@ -22,10 +55,12 @@ export const Roles = () => {
         }, wRoles);
         dispatch(updateConfig({ team: state.config.team, roles: wRoles }));
         setDirty(false);
-    }, [dispatch, state.config.roles, state.config.team]);
+    }, [dispatch, roles, state.config.team]);
 
     return (
-        <form className='d-block w-100' onSubmit={onSubmit} onChange={() => setDirty(true)}>
+        <div className='d-block w-100'  onChange={() => setDirty(true)}>
+            <form id="roles-new" onSubmit={onSubmitAdd} />
+            <form id="roles-existing" onSubmit={onSubmit} />
             <div className='d-flex align-items-center gap-2'>
                 <Title variant='h3'>
                     Roles
@@ -42,34 +77,53 @@ export const Roles = () => {
                         <td className='pb-2 border-bottom'><Article variant="semibold">Name</Article></td>
                         <td className='pb-2 border-bottom'><Article variant="semibold">duration (days)</Article></td>
                         <td className='pb-2 border-bottom'><Article variant="semibold">full time</Article></td>
+                        <td className='border-bottom'></td>
                     </tr>
                 </thead>
                 <tbody>
                     {
-                        state.config.roles.map((r, index) => (
+                        roles.map((r, index) => (
                             <tr key={r.name}>
                                 <td className="p-1">
-                                    <input type='text' name={`${index}-name`} defaultValue={r.name} />
+                                    <input type='text' name={`${index}-name`} form="roles-existing" defaultValue={r.name} />
                                 </td>
                                 <td className="p-1">
-                                    <input type='number' name={`${index}-duration`} defaultValue={r.duration} min={0} step={1} />
+                                    <input type='number' name={`${index}-duration`} form="roles-existing" defaultValue={r.duration} min={0} step={1} />
                                 </td>
-                                <td className="text-center p1">
-                                    <input type='checkbox' defaultChecked={r.fullTime}  name={`${index}-fullTime`} />
+                                <td className="text-center p-1">
+                                    <input type='checkbox' defaultChecked={r.fullTime} form="roles-existing" name={`${index}-fullTime`} />
+                                </td>
+                                <td className='text-right'>
+                                    <Button variant="secondary-destructive" size={50} onClick={() => onDelete(r)}>Remove</Button>
                                 </td>
                             </tr>
                         ))
                     }
+                    <tr>
+                        <td className='p-1'>
+                            <input type="text" name="name" required form="roles-new"/>
+                        </td>
+                        <td className='p-1'>
+                            <input type="number" min={2} max={363} required name="duration" form="roles-new"/>
+                        </td>
+                        <td className="text-center p-1">
+                            <input type='checkbox'  name="fullTime" form="roles-new"/>
+                        </td>
+                        <td className='text-right'>
+                            <Button type='submit' form="roles-new" variant="secondary-basic" size={50}>
+                                <Icon icon={icnAdd} color />
+                                Add role
+                            </Button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div className='mt-2 text-right'>
-                <Button type="submit" size={50} disabled={!dirty}>
+                <Button type="submit" size={50} disabled={!dirty} form="roles-existing">
                     Save
                 </Button>
             </div>
 
-        </form>
+        </div>
     )
-
-    return JSON.stringify(state.config);
 };
